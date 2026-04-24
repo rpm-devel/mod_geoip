@@ -9,7 +9,6 @@ Summary:	GeoIP module for the Apache HTTP Server
 Name:		mod_geoip
 Version:	1.2.10
 Release:	1%{?dist}
-Group:		System Environment/Daemons
 License:	ASL 1.1
 URL:		http://dev.maxmind.com/geoip/legacy/mod_geoip2/
 Source0:	https://github.com/maxmind/geoip-api-mod_geoip2/archive/%{version}.tar.gz
@@ -17,7 +16,6 @@ Source1:	10-geoip.conf
 Source2:	geoip.conf
 BuildRequires:	httpd-devel, GeoIP-devel >= 1.4.3
 Requires:	GeoIP%{?_isa}, httpd-mmn = %{_httpd_mmn}
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
 mod_geoip is an Apache module to look up geolocation information for a
@@ -32,8 +30,7 @@ the Apache license.
 %{_httpd_apxs} -Wc,-Wall -Wl,"-lGeoIP" -c %{name}.c
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -D -p -m 755 .libs/%{name}.so $RPM_BUILD_ROOT%{_httpd_moddir}/%{name}.so
+install -D -p -m 755 .libs/%{name}.so %{buildroot}%{_httpd_moddir}/%{name}.so
 
 %if "%{_httpd_modconfdir}" == "%{_httpd_confdir}"
 # httpd <= 2.2.x
@@ -41,18 +38,14 @@ cat %{SOURCE1} > unified.conf
 echo >> unified.conf
 cat %{SOURCE2} >> unified.conf
 touch -c -r %{SOURCE1} unified.conf
-install -D -p -m 644 unified.conf $RPM_BUILD_ROOT%{_httpd_confdir}/geoip.conf
+install -D -p -m 644 unified.conf %{buildroot}%{_httpd_confdir}/geoip.conf
 %else
 # httpd >= 2.4.x
-install -D -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_httpd_modconfdir}/10-geoip.conf
-install -D -p -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_httpd_confdir}/geoip.conf
+install -D -p -m 644 %{SOURCE1} %{buildroot}%{_httpd_modconfdir}/10-geoip.conf
+install -D -p -m 644 %{SOURCE2} %{buildroot}%{_httpd_confdir}/geoip.conf
 %endif
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %files
-%defattr(-,root,root,-)
 %{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc Changes INSTALL.md README.*
@@ -63,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.2.10-1
+- Modernize spec for AlmaLinux 10; remove BuildRoot, Group, %clean, %defattr
+
 * Thu Apr 23 2015 Robert Scheck <robert@fedoraproject.org> 1.2.10-1
 - Upgrade to 1.2.10 (#1214493)
 
